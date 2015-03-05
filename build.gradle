@@ -1,0 +1,11 @@
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile 'org.apache.commons:commons-lang3:3.1'
+}

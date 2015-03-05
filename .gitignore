@@ -1,0 +1,16 @@
+# Gradle
+build/
+.gradle/
+!gradle-wrapper.jar
+
+# Intellij IDEA
+.idea/
+*.iml
+
+# other
+.DS_Store
+*~
+*.bak
+*.tmp
+*.log
+*.new
