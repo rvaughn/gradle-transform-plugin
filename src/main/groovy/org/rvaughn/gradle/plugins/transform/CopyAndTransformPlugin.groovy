@@ -30,7 +30,7 @@ class CopyAndTransformPlugin implements Plugin<Project> {
         extension = project.extensions.create('copyAndTransform', CopySpecExtension, project)
         ConventionMapping mapping = ((IConventionAware)extension).getConventionMapping()
 
-        project.ext.CopyAndTransformTask = CopyAndTransformTask.class
+        project.ext.CopyAndTransform = CopyAndTransformTask.class
 
         project.tasks.withType(CopyAndTransformTask) { CopyAndTransformTask t ->
             t.applyConventions()

@@ -21,8 +21,14 @@ import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopyActionProcessingStream
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.api.internal.file.copy.CopySpecInternal
+import org.gradle.api.internal.file.copy.CopySpecResolver
+import org.gradle.api.internal.file.copy.DefaultFileCopyDetails
+import org.gradle.api.internal.file.copy.DefaultCopySpec
 import org.gradle.api.internal.tasks.SimpleWorkResult
 import org.gradle.api.tasks.WorkResult
+
+import java.lang.reflect.Field
 
 public class CopyAndTransformAction implements CopyAction {
 
@@ -44,12 +50,46 @@ public class CopyAndTransformAction implements CopyAction {
 
         public void processFile(FileCopyDetailsInternal details) {
             File target = fileResolver.resolve(details.getRelativePath().getPathString())
+            CopySpecInternal spec = extractSpec(details)
             if (!details.isDirectory()) {
+                boolean sign = lookup(spec, 'signing')
                 System.out.println(details.getFile().getAbsolutePath() + " -> " + target)
+                System.out.println("sign: " + (sign ? 'true' : 'false'))
             }
             boolean copied = details.copyTo(target)
             if (copied) {
                 didWork = true
+            }
+        }
+
+        def static lookup(def specToLookAt, String propertyName) {
+            if (specToLookAt?.metaClass?.hasProperty(specToLookAt, propertyName) != null) {
+                def prop = specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
+                if (prop instanceof MetaBeanProperty) {
+                    return prop?.getProperty(specToLookAt)
+                } else {
+                    return prop
+                }
+            } else {
+                return null
+            }
+        }
+
+        CopySpecInternal extractSpec(FileCopyDetailsInternal fileDetails) {
+            if (fileDetails instanceof DefaultFileCopyDetails) {
+                def startingClass = fileDetails.getClass() // It's in there somewhere
+                while( startingClass != null && startingClass != DefaultFileCopyDetails) {
+                    startingClass = startingClass.superclass
+                }
+                Field specField = startingClass.getDeclaredField('specResolver')
+                specField.setAccessible(true)
+                CopySpecResolver specResolver = specField.get(fileDetails)
+                Field field = DefaultCopySpec.DefaultCopySpecResolver.class.getDeclaredField('this$0')
+                field.setAccessible(true)
+                CopySpecInternal spec = field.get(specResolver)
+                return spec
+            } else {
+                return null
             }
         }
     }

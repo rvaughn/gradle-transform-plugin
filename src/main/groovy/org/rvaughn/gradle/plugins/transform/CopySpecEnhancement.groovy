@@ -36,10 +36,12 @@ class CopySpecEnhancement {
     }
 
     static void signing(CopySpec spec, boolean signArg) {
+        System.out.println("signing")
         appendFieldToCopySpec(spec, 'signing', signArg)
     }
 
     static void setSigning(CopySpec spec, boolean signArg) {
+        System.out.println("setSigning")
         signing(spec, signArg)
     }
 }

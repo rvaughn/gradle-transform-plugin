@@ -30,6 +30,16 @@ import org.gradle.internal.reflect.Instantiator
 
 class CopyAndTransformTask extends AbstractCopyTask {
 
+    CopyAndTransformTask() {
+        super()
+
+        CopySpecExtension extension = project.extensions.findByType(CopySpecExtension)
+        if (extension) {
+            System.out.println("got the extension")
+            //getRootSpec().with(extension.delegateCopySpec)
+        }
+    }
+
     @Override
     @TaskAction
     protected void copy() {
@@ -41,6 +51,8 @@ class CopyAndTransformTask extends AbstractCopyTask {
 
     protected void applyConventions() {
         ConventionMapping mapping = ((IConventionAware)this).getConventionMapping()
+
+        // mapping.map('signing', { false })
     }
 
     @Override
@@ -87,6 +99,7 @@ class CopyAndTransformTask extends AbstractCopyTask {
 
     @Override
     public AbstractCopyTask from(Object sourcePath, Closure c) {
+        System.out.println("enhanced from")
         use(CopySpecEnhancement) {
             getMainSpec().from(sourcePath, c)
         }
